@@ -40,18 +40,16 @@ export default function RootLayout({
                 </div>
                 <div className="flex items-center gap-4">
                   <SignedOut>
-                    <a 
-                      href="/sign-in"
-                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      Sign In
-                    </a>
-                    <a 
-                      href="/sign-up"
-                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                    >
-                      Sign Up
-                    </a>
+                    <SignInButton mode="modal">
+                      <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Sign In
+                      </button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                        Sign Up
+                      </button>
+                    </SignUpButton>
                   </SignedOut>
                   <SignedIn>
                     <UserButton 
