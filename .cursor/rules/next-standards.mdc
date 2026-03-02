@@ -1,0 +1,14 @@
+---
+description: Next.js and React conventions for this project
+globs: "src/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Next.js & React Conventions
+
+- Use the App Router: pages and layouts under `src/app/`.
+- Use functional components and hooks; avoid class components.
+- Prefer `"use client"` only where needed (interactivity, browser APIs).
+- Use the `@/` import alias for project imports (e.g. `@/components/...`).
+- Keep components small; extract reusable logic into custom hooks.
+- Use TypeScript for all new files; avoid `any` where possible.
