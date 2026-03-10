@@ -1,11 +1,22 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+"use client";
+
+import { useUser } from "@clerk/nextjs";
+import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
 
-export default async function Home() {
-  const { userId } = await auth();
+export default function Home() {
+  const { isSignedIn } = useUser();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (isSignedIn && pathname === "/") {
+      router.push("/dashboard");
+    }
+  }, [isSignedIn, pathname]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 font-sans">
@@ -19,24 +30,26 @@ export default async function Home() {
           </p>
         </div>
 
-        {userId ? (
-          <Button asChild size="lg">
-            <Link href="/dashboard">
-              Go to Dashboard
-            </Link>
-          </Button>
-        ) : (
+        {!isSignedIn ? (
           <div className="flex gap-4">
             <SignInButton mode="modal">
-              <button className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <Button variant="outline">
                 Sign In
-              </button>
+              </Button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="px-6 py-3 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+              <Button>
                 Sign Up
-              </button>
+              </Button>
             </SignUpButton>
+          </div>
+        ) : (
+          <div className="flex gap-4">
+            <Button asChild size="lg">
+              <Link href="/dashboard">
+                Go to Dashboard
+              </Link>
+            </Button>
           </div>
         )}
       </main>

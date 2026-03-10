@@ -7,7 +7,9 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  SignOutButton,
 } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -30,35 +32,38 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="dark">
         <body className={`${poppins.variable} font-sans antialiased`}>
-          <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+          <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center">
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-xl font-bold text-foreground">
                     FlashyCardyCourse
                   </h1>
                 </div>
                 <div className="flex items-center gap-4">
                   <SignedOut>
                     <SignInButton mode="modal">
-                      <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        Sign In
-                      </button>
+                      <Button variant="outline">Sign In</Button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-                        Sign Up
-                      </button>
+                      <Button>Sign Up</Button>
                     </SignUpButton>
                   </SignedOut>
                   <SignedIn>
-                    <UserButton 
-                      appearance={{
-                        elements: {
-                          avatarBox: "w-10 h-10",
-                        }
-                      }}
-                    />
+                    <div className="flex items-center gap-3">
+                      <UserButton 
+                        appearance={{
+                          elements: {
+                            avatarBox: "w-10 h-10",
+                          }
+                        }}
+                      />
+                      <SignOutButton>
+                        <Button variant="outline" size="sm">
+                          Sign Out
+                        </Button>
+                      </SignOutButton>
+                    </div>
                   </SignedIn>
                 </div>
               </div>
