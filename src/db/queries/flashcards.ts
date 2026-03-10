@@ -58,7 +58,7 @@ export async function updateFlashcard(flashcardId: string, flashcardData: Partia
     .where(eq(flashcardsTable.id, flashcardId))
     .returning();
 
-  return flashcard[0] || null;
+  return flashcard || null;
 }
 
 export async function deleteFlashcard(flashcardId: string): Promise<boolean> {
@@ -66,5 +66,29 @@ export async function deleteFlashcard(flashcardId: string): Promise<boolean> {
     .delete(flashcardsTable)
     .where(eq(flashcardsTable.id, flashcardId));
 
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
+}
+
+export async function deleteFlashcardWithAuth(flashcardId: string, userId: string): Promise<boolean> {
+  // First verify the flashcard belongs to the user's deck
+  const flashcard = await db
+    .select({ deckId: flashcardsTable.deckId })
+    .from(flashcardsTable)
+    .innerJoin(decksTable, eq(flashcardsTable.deckId, decksTable.id))
+    .where(and(
+      eq(flashcardsTable.id, flashcardId),
+      eq(decksTable.userId, userId)
+    ))
+    .limit(1);
+
+  if (!flashcard || flashcard.length === 0) {
+    return false;
+  }
+
+  // Delete the flashcard
+  const result = await db
+    .delete(flashcardsTable)
+    .where(eq(flashcardsTable.id, flashcardId));
+
+  return (result.rowCount ?? 0) > 0;
 }

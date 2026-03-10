@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { decksTable } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
-import type { Deck } from "@/db/schema";
+import type { Deck, NewDeck } from "@/db/schema";
 
 export async function getUserDecks(userId: string): Promise<Deck[]> {
   const decks = await db
@@ -26,7 +26,7 @@ export async function getDeckById(deckId: string, userId: string): Promise<Deck 
   return deck[0] || null;
 }
 
-export async function createDeck(userId: string, deckData: Omit<Deck, "id" | "createdAt" | "updatedAt">): Promise<Deck> {
+export async function createDeck(userId: string, deckData: Omit<NewDeck, "userId" | "createdAt" | "updatedAt">): Promise<Deck> {
   const [deck] = await db
     .insert(decksTable)
     .values({
@@ -37,10 +37,10 @@ export async function createDeck(userId: string, deckData: Omit<Deck, "id" | "cr
     })
     .returning();
 
-  return deck;
+  return deck as Deck;
 }
 
-export async function updateDeck(deckId: string, userId: string, deckData: Partial<Omit<Deck, "id" | "userId" | "createdAt" | "updatedAt">>): Promise<Deck | null> {
+export async function updateDeck(deckId: string, userId: string, deckData: Partial<Omit<NewDeck, "id" | "userId" | "createdAt" | "updatedAt">>): Promise<Deck | null> {
   const [deck] = await db
     .update(decksTable)
     .set({
@@ -53,7 +53,7 @@ export async function updateDeck(deckId: string, userId: string, deckData: Parti
     ))
     .returning();
 
-  return deck[0] || null;
+  return (deck as Deck) || null;
 }
 
 export async function deleteDeck(deckId: string, userId: string): Promise<boolean> {
@@ -64,5 +64,5 @@ export async function deleteDeck(deckId: string, userId: string): Promise<boolea
       eq(decksTable.userId, userId)
     ));
 
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Check, X, RotateCcw, Trophy, Clock, Target } from "lucide-react";
+import { ArrowLeft, Check, X, RotateCcw, Trophy, Clock, Target, Shuffle, ChevronLeft, ChevronRight } from "lucide-react";
 import { saveStudySession } from "./actions";
 import type { Flashcard, Deck } from "@/db/schema";
 
@@ -66,6 +66,27 @@ export default function StudyClient({ deck, flashcards }: StudyClientProps) {
     setIsFlipped(false);
     setResults([]);
     setStudyState("studying");
+  };
+
+  const handleShuffle = () => {
+    const shuffled = [...shuffledCards].sort(() => Math.random() - 0.5);
+    setShuffledCards(shuffled);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+      setIsFlipped(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < shuffledCards.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+      setIsFlipped(false);
+    }
   };
 
   const handleStudyIncorrectOnly = () => {
@@ -202,15 +223,26 @@ export default function StudyClient({ deck, flashcards }: StudyClientProps) {
                 Card {currentIndex + 1} of {shuffledCards.length}
               </p>
             </div>
-            <div className="flex items-center gap-4 text-sm">
-              <span className="text-green-500 flex items-center">
-                <Check className="w-4 h-4 mr-1" />
-                {correctCount}
-              </span>
-              <span className="text-red-500 flex items-center">
-                <X className="w-4 h-4 mr-1" />
-                {incorrectCount}
-              </span>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleShuffle}
+                variant="outline"
+                size="sm"
+                className="w-32"
+              >
+                <Shuffle className="w-4 h-4 mr-2" />
+                Shuffle
+              </Button>
+              <div className="flex items-center gap-4 text-sm">
+                <span className="text-green-500 flex items-center">
+                  <Check className="w-4 h-4 mr-1" />
+                  {correctCount}
+                </span>
+                <span className="text-red-500 flex items-center">
+                  <X className="w-4 h-4 mr-1" />
+                  {incorrectCount}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -265,32 +297,54 @@ export default function StudyClient({ deck, flashcards }: StudyClientProps) {
           </p>
         </div>
 
-        {isFlipped ? (
-          <div className="flex gap-4 justify-center">
-            <Button
-              onClick={() => handleAnswer(false)}
-              size="lg"
-              variant="destructive"
-              className="w-40"
-            >
-              <X className="w-5 h-5 mr-2" />
-              Don&apos;t Know
-            </Button>
-            <Button
-              onClick={() => handleAnswer(true)}
-              size="lg"
-              variant="default"
-              className="w-40 bg-green-600 hover:bg-green-700"
-            >
-              <Check className="w-5 h-5 mr-2" />
-              Know
-            </Button>
-          </div>
-        ) : (
-          <p className="text-center text-muted-foreground">
-            Press <kbd className="px-2 py-1 bg-muted rounded text-xs">Space</kbd> to reveal answer
-          </p>
-        )}
+        <div className="flex gap-4 justify-center items-center">
+          <Button
+            onClick={handlePrevious}
+            variant="outline"
+            size="sm"
+            className="w-32"
+            disabled={currentIndex === 0}
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Previous
+          </Button>
+          {isFlipped ? (
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={() => handleAnswer(false)}
+                size="lg"
+                variant="destructive"
+                className="w-40"
+              >
+                <X className="w-5 h-5 mr-2" />
+                Don&apos;t Know
+              </Button>
+              <Button
+                onClick={() => handleAnswer(true)}
+                size="lg"
+                variant="default"
+                className="w-40 bg-green-600 hover:bg-green-700"
+              >
+                <Check className="w-5 h-5 mr-2" />
+                Know
+              </Button>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground">
+              Press <kbd className="px-2 py-1 bg-muted rounded text-xs">Space</kbd> to reveal answer
+            </p>
+          )}
+          <Button
+            onClick={handleNext}
+            variant="outline"
+            size="sm"
+            className="w-32"
+            disabled={currentIndex >= shuffledCards.length - 1}
+          >
+            Next
+            <ChevronRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
-import { db } from "@/lib/db";
 import { createDeck } from "@/db/queries/decks";
 import { createFlashcard } from "@/db/queries/flashcards";
-import type { NewDeck, NewFlashcard } from "@/db/schema";
+import type { NewDeck } from "@/db/schema";
 
 // Example user ID - replace with actual user ID from Clerk
 const EXAMPLE_USER_ID = "user_example_123"; // You should replace this with actual Clerk user ID

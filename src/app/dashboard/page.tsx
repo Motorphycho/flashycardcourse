@@ -4,7 +4,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getUserDecks } from "@/db/queries/decks";
 import { getDeckFlashcards } from "@/db/queries/flashcards";
+import { deleteDeck } from "@/db/queries/decks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Edit, Trash2 } from "lucide-react";
+import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +19,24 @@ export default async function DashboardPage() {
   }
 
   const decks = await getUserDecks(userId);
+
+  async function deleteDeckAction(deckId: string) {
+    "use server";
+    
+    const { userId } = await auth();
+    if (!userId) {
+      redirect("/");
+    }
+
+    try {
+      await deleteDeck(deckId, userId);
+      // Revalidate the cache and redirect to show updated deck list
+      revalidatePath("/dashboard");
+      redirect("/dashboard");
+    } catch (error) {
+      console.error("Error deleting deck:", error);
+    }
+  }
 
   // Get card count for each deck
   const decksWithCardCount = await Promise.all(
@@ -48,27 +69,40 @@ export default async function DashboardPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {decksWithCardCount.map((deck) => (
-                <Link key={deck.id} href={`/dashboard/decks/${deck.id}`} className="block">
-                  <Card className="hover:shadow-md transition-shadow cursor-pointer hover:bg-accent/50">
-                    <CardHeader>
-                      <CardTitle className="text-lg">{deck.title}</CardTitle>
-                      <CardDescription>{deck.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">
-                            {deck.cardCount} {deck.cardCount === 1 ? 'card' : 'cards'}
-                          </span>
-                          <span className="text-sm text-primary font-medium">Study</span>
+                <div key={deck.id} className="relative">
+                  <Link href={`/dashboard/decks/${deck.id}`} className="block">
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer hover:bg-accent/50">
+                      <CardHeader>
+                        <CardTitle className="text-lg">{deck.title}</CardTitle>
+                        <CardDescription>{deck.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              {deck.cardCount} {deck.cardCount === 1 ? 'card' : 'cards'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Updated {new Date(deck.updatedAt).toLocaleDateString()}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          Updated {new Date(deck.updatedAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  <div className="absolute top-2 right-2 flex flex-col gap-1">
+                    <Button variant="ghost" size="sm" className="bg-background/80 backdrop-blur-sm" asChild>
+                      <Link href={`/dashboard/decks/${deck.id}/edit`}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <form action={deleteDeckAction.bind(null, deck.id)}>
+                      <Button type="submit" variant="ghost" size="sm" className="text-destructive hover:text-destructive bg-background/80 backdrop-blur-sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </form>
+                  </div>
+                </div>
               ))}
             </div>
           )}
